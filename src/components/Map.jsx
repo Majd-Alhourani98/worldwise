@@ -1,27 +1,54 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  useMap,
+  useMapEvent,
+} from "react-leaflet";
 
 import { useCities } from "./../../contexts/CitiesContext";
 import styles from "./Map.module.css";
+import { useGeolocation } from "../hooks/useGeolocaion";
+import Button from "./Button";
 
 function Map() {
+  const [mapPosition, setMapPosition] = useState([33.8522, 35.5149]); // default
+
   const [searchParams] = useSearchParams();
   const lat = searchParams.get("lat");
   const lng = searchParams.get("lng");
 
   const { cities } = useCities();
+  const { getPosition, isLoading, position } = useGeolocation();
 
-  const navigate = useNavigate();
+  useEffect(
+    function () {
+      if (!lat || !lng) return;
+      setMapPosition([lat, lng]);
+    },
+    [lat, lng]
+  );
 
-  const [mapPosition, setMapPosition] = useState([40, 0]); // default
+  useEffect(
+    function () {
+      if (position) setMapPosition([position.lat, position.lng]);
+    },
+    [position]
+  );
 
   return (
     <div className={styles.mapContainer}>
+      <Button type="position" onClick={getPosition}>
+        {isLoading ? "Loading..." : "Use your position"}
+      </Button>
+
       <MapContainer
         center={mapPosition}
-        zoom={13}
+        zoom={6}
         scrollWheelZoom={true}
         className={styles.map}
       >
@@ -42,9 +69,26 @@ function Map() {
             </Popup>
           </Marker>
         ))}
+
+        <ChangeCenter position={mapPosition} />
+        <DetectClick />
       </MapContainer>
     </div>
   );
 }
 
+function ChangeCenter({ position }) {
+  const map = useMap();
+  map.setView(position);
+
+  return null;
+}
+
+function DetectClick() {
+  const navigate = useNavigate();
+
+  useMapEvent({
+    click: (e) => navigate(`form?lat=${e.latlng.lat}&lng=${e.latlng.lng}`),
+  });
+}
 export default Map;
