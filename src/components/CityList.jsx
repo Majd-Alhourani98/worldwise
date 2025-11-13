@@ -4,7 +4,7 @@ import CityItem from "./CityItem";
 
 import styles from "./CityList.module.css";
 
-import { useCities } from "../../contexts/CitiesContext";
+import { useCities } from "./../contexts/CitiesContext";
 
 function CityList() {
   const { cities, isLoading } = useCities();

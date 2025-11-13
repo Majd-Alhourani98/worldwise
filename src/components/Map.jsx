@@ -10,7 +10,7 @@ import {
   useMapEvent,
 } from "react-leaflet";
 
-import { useCities } from "./../../contexts/CitiesContext";
+import { useCities } from "../contexts/CitiesContext";
 import styles from "./Map.module.css";
 import { useGeolocation } from "../hooks/useGeolocaion";
 import Button from "./Button";
